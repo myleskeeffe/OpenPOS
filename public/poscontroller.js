@@ -184,7 +184,13 @@ function AppCtrl($scope, $http) {
 		var priceStr = $scope.product.price;
 		var priceRegex = /^((\d{0,3}(,\d{3})+)|\d+)(\.\d{2})?$/; // valid currency values only
 
-		if (nameStr.length > 36) {
+		if ($scope.uname !== ('Qasim9872')) {
+			alert("You do not have access to make changes.");
+		}
+		else if (!nameStr) {
+			alert("Pleae provide the name of the Item");
+		}
+		else if (nameStr.length > 36) {
 			alert("Item name can be a maximum of 36 characters long.");
 		} else if (!priceRegex.test(priceStr)) {
 			alert("Please enter a valid price.");
@@ -201,11 +207,16 @@ function AppCtrl($scope, $http) {
 	};
 
 	$scope.remove = function (id) {
-		console.log(id);
-		$http.delete('/productlist/' + id).success(function (response) {
-			//			console.log("remove: " + response);
-			refresh(); // refresh the Menu Panel
-		});
+		if ($scope.uname === ('Qasim9872')) {
+			alert("You do not have access to make changes.");
+		} else {
+			console.log(id);
+			$http.delete('/productlist/' + id).success(function (response) {
+				//			console.log("remove: " + response);
+				refresh(); // refresh the Menu Panel
+			});
+	}
+
 	};
 }
 

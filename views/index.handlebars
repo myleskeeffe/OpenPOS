@@ -24,7 +24,7 @@
 						<li role="presentation" class="active"><a href="#basic" role="tab" data-toggle="tab">Basic</a></li>
 						<li role="presentation"><a href="#premium" role="tab" data-toggle="tab">Premium</a></li>
 						<li role="presentation"><a href="#other" role="tab" data-toggle="tab">Other</a></li>
-						<li role="presentation"><a href="#new" role="tab" data-toggle="tab">Edit Items</a></li>
+						<li role="presentation"><a href="#new" role="tab" data-toggle="tab">Edit Services</a></li>
 					</ul>
 					<div class="tab-content">
 						<br />
@@ -38,7 +38,7 @@
 							<button class="btn btn-warning btn-pos btn-marginTop" data-ng-repeat="item in other" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>
 						</div>
 						<div role="tabpanel" class="tab-pane" id="new" ng-controller="AppCtrl">
-							<h1>Add A New Item</h1>
+							<h1>Add A New Service</h1>
 
 							<table class="table" style="table-layout:fixed">
 								<thead>
@@ -53,8 +53,8 @@
 									<tr>
 										<td><input class="form-control" ng-model="product.name" ng-keyup="$event.keyCode == 13 ? addProduct() : null"></td>
 										<td><input class="form-control" ng-model="product.price" ng-keyup="$event.keyCode == 13 ? addProduct() : null"></td>
-										<td><select class="form-control" ng-model="selectedCategory" ng-options="category.category as category.category for category in categories" ng-init="selectedCategory = 'Foods'"></select></td>
-										<td><button id="bar" class="btn btn-primary" ng-click="addProduct()">Add Item</button></td>
+										<td><select class="form-control" ng-model="selectedCategory" ng-options="category.category as category.category for category in categories" ng-init="selectedCategory = 'Basic'"></select></td>
+										<td><button id="bar" class="btn btn-primary" ng-click="addProduct()">Add Service</button></td>
 									</tr>
 									<tr ng-repeat="product in productlist">
 										<td>[[product.name]]</td>
