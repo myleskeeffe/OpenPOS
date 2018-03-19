@@ -21,18 +21,18 @@
 			<div class="panel panel-primary">
 				<div class="panel-body">
 					<ul id="myTab" class="nav nav-tabs" role="tablist">
-						<li role="presentation" class="active"><a href="#food" role="tab" data-toggle="tab">Foods</a></li>
-						<li role="presentation"><a href="#drink" role="tab" data-toggle="tab">Drinks</a></li>
+						<li role="presentation" class="active"><a href="#basic" role="tab" data-toggle="tab">Basic</a></li>
+						<li role="presentation"><a href="#premium" role="tab" data-toggle="tab">Premium</a></li>
 						<li role="presentation"><a href="#other" role="tab" data-toggle="tab">Other</a></li>
 						<li role="presentation"><a href="#new" role="tab" data-toggle="tab">Edit Items</a></li>
 					</ul>
 					<div class="tab-content">
 						<br />
-						<div role="tabpanel" class="tab-pane active" id="food">
-							<button class="btn btn-info btn-pos btn-marginTop" data-ng-repeat="item in foods" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>
+						<div role="tabpanel" class="tab-pane active" id="basic">
+							<button class="btn btn-info btn-pos btn-marginTop" data-ng-repeat="item in basic" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>
 						</div>
-						<div role="tabpanel" class="tab-pane" id="drink">
-							<button class="btn btn-primary btn-pos btn-marginTop" data-ng-repeat="item in drinks" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>
+						<div role="tabpanel" class="tab-pane" id="premium">
+							<button class="btn btn-primary btn-pos btn-marginTop" data-ng-repeat="item in premium" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>
 						</div>
 						<div role="tabpanel" class="tab-pane" id="other">
 							<button class="btn btn-warning btn-pos btn-marginTop" data-ng-repeat="item in other" data-ng-bind="item.name" data-ng-click="addToOrder(item,1)"></button>

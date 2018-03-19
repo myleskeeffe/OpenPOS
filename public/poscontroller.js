@@ -15,16 +15,16 @@ app.config(function ($interpolateProvider) {
 app.controller('PosController', function ($scope, $http) {
 	//	console.log("Hello world from PosController/poscontroller.js");
 
-	$scope.drinks = [];
-	$scope.foods = [];
+	$scope.basic = [];
+	$scope.premium = [];
 	$scope.other = [];
 
 	$scope.categories = [
 		{
-			'category': 'Foods'
+			'category': 'Basic'
 		},
 		{
-			'category': 'Drinks'
+			'category': 'Premium'
 		},
 		{
 			'category': 'Other'
@@ -113,14 +113,14 @@ app.controller('PosController', function ($scope, $http) {
 
 			angular.forEach(response, function (item, key) {
 				//				console.log("pushing --> " + item.name);
-				if (item.category === "Foods") {
-					$scope.foods.push({
+				if (item.category === "Premium") {
+					$scope.premium.push({
 						id: item._id,
 						name: item.name,
 						price: item.price
 					});
-				} else if (item.category === "Drinks") {
-					$scope.drinks.push({
+				} else if (item.category === "Basic") {
+					$scope.basic.push({
 						id: item._id,
 						name: item.name,
 						price: item.price
@@ -143,8 +143,8 @@ function AppCtrl($scope, $http) {
 
 	var refresh = function () {
 		$http.get('/productlist').success(function (response) {
-			$scope.foods.length = 0; // clear all the buttons from the Menu Panel
-			$scope.drinks.length = 0; // clear all the buttons from the Menu Panel
+			$scope.premium.length = 0; // clear all the buttons from the Menu Panel
+			$scope.basic.length = 0; // clear all the buttons from the Menu Panel
 			$scope.other.length = 0; // clear all the buttons from the Menu Panel
 
 			$scope.productlist = response;
@@ -154,14 +154,14 @@ function AppCtrl($scope, $http) {
 			angular.forEach(response, function (item, key) {
 				//				console.log("adding menu item --> " + item.name);
 
-				if (item.category === "Foods") {
-					$scope.foods.push({
+				if (item.category === "Premium") {
+					$scope.premium.push({
 						id: item._id,
 						name: item.name,
 						price: item.price
 					});
-				} else if (item.category === "Drinks") {
-					$scope.drinks.push({
+				} else if (item.category === "Basic") {
+					$scope.basic.push({
 						id: item._id,
 						name: item.name,
 						price: item.price
