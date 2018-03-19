@@ -28,9 +28,7 @@ var app = express();
 //mongoose.connect('mongodb://localhost/loginapp');
 
 // or, connect to MongoDB's Atlas (a cloud-hosted MongoDB service)
-var username = "djk3"
-var password = "Da72vid87!"
-var uri = "mongodb://" + username + ":" + password + "@openposcluster-shard-00-00-zb2uf.mongodb.net:27017,openposcluster-shard-00-01-zb2uf.mongodb.net:27017,openposcluster-shard-00-02-zb2uf.mongodb.net:27017/OpenPOS?ssl=true&replicaSet=OpenPOSCluster-shard-0&authSource=admin";
+var uri = "mongodb://localhost:27017/pos";
 mongoose.connect(uri, {
 	useMongoClient: true
 });

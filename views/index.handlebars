@@ -68,7 +68,7 @@
 					</div>
 				</div>
 				<div class="panel-footer">
-					<p>&copy; 2017 David Kim</p>
+					<p>Shahzad's Hair Saloon</p>
 				</div>
 			</div>
 		</div>
@@ -95,10 +95,10 @@
 									[[item.name]]
 								</div>
 								<div class="col-md-1" id="item-total-cost">
-									<div class="label label-success">[[item.price * item.qty | currency:"$":0]]</div>
+									<div class="label label-success">[[item.price * item.qty | currency:"":0]]</div>
 								</div>
 								<div class="col-md-1 col-md-push-1" id="item-cost">
-									<div class="label label-warning">[[item.price | currency:"$":0]]</div>
+									<div class="label label-warning">[[item.price | currency:"":0]]</div>
 								</div>
 								<div class="col-md-2 col-md-push-2" id="item-add-remove">
 									<button class="btn btn-success btn-xs" ng-click="addToOrder(item,1)">
@@ -118,7 +118,7 @@
 					</ul>
 				</div>
 				<div class="panel-footer" ng-show="order.length">
-					<span class="label label-primary" style="margin-top: 10px; margin-bottom: 10px;">Total: [[getTotal() | currency:" $":0]]</span>
+					<span class="label label-primary" style="margin-top: 10px; margin-bottom: 10px;">Total rps: [[getTotal() | currency:"":0]]</span>
 				</div>
 				<div class="panel-footer" ng-show="order.length">
 					<div>
