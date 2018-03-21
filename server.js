@@ -18,8 +18,14 @@ var express = require('express'),
 	users = require('./routes/users'),
 	mongo = require('mongodb'),
 	mongoose = require('mongoose'),
-	db = mongoose.connection;
+	db = mongoose.connection,
+	request = require('request'),
+	moment = require('moment'),
+	promise = require('promise'),
+	User = require('./models/user');;
 
+// sendPK config
+var config = require('./config.json');
 
 // init express
 var app = express();
@@ -42,8 +48,7 @@ db1.once('open', function () {
 var productSchema = mongoose.Schema({
 	name: String,
 	price: String,
-	category: String,
-	user: String
+	category: String
 });
 
 // define a mongoose model
@@ -90,7 +95,21 @@ app.use(expressValidator({
 			msg: msg,
 			value: value
 		};
-	}
+	},
+	customValidators: {
+		isUsernameAvailable: function(username) {
+				return new Promise(function(resolve, reject) {
+
+					User.findOne({'username': username}, function(err, results) { 
+						if(results === null) {
+							return resolve();
+						}
+						reject(results);
+					});
+
+				});
+			}
+		}
 }));
 
 // connect flash
@@ -131,7 +150,6 @@ app.get('/productlist', function (req, res) {
 	// find all products (documents) belonging to the user
 	console.log(uname, "just logged into OpenPOS");
 	Products.find({
-		user: uname
 	}, function (err, docs) {
 		console.log("Finding all docs for", uname + ":\n", docs);
 		res.json(docs);
@@ -168,6 +186,131 @@ app.delete('/productlist/:id', function (req, res) {
 		_id: id
 	}, function (err, doc) {
 		res.json(doc);
+	});
+});
+
+// ---------------------- CHECKOUT ORDERS
+
+// define a mongoose schema
+var checkoutSchema = mongoose.Schema({
+	name: String,
+	phoneNumber: String,
+	servedBy: String,
+	createdAt: Date,
+	order: [],
+	total: String
+});
+
+// define a mongoose model
+var Checkout = mongoose.model('checkout', checkoutSchema, 'checkout');
+
+const saveOrderToDB = async (data) => {
+	console.warn('request to save order in db');
+	console.log(JSON.stringify(data, null, '   '));
+
+	return new promise(function(resolve, reject) {
+		data.createdAt = moment();
+
+		// create a new checout using the data sent from the client
+		var c = new Checkout(data);
+		console.log('checkout item ' + JSON.stringify(c, null, '  '));
+
+		// save the new product to the db
+		c.save(function (err, doc) {
+			if (err) {
+				reject(err);
+			} else {
+				console.log("Saving c to db: ", doc);
+				resolve(doc);
+			}
+		});
+	});
+};
+
+app.post('/checkoutOrder', async(req, res) => {
+	console.log('checking out order');
+
+	console.log(JSON.stringify(req.body, null, '   '));
+
+	let body = req.body;
+
+	//save here
+	let savedOrder = await saveOrderToDB(body);
+
+	let message = "Thank you for visiting Shahzad's Hair Saloon. \n\nOrder id: " + savedOrder._id + "\nAmount paid: " + body.total;
+
+	if (typeof body.phoneNumber !== 'undefined' && body.phoneNumber.trim() !== "") {
+		// has phone number in body, will try to send message
+
+		postData = {
+			username: config.username,
+			password: config.password,
+			mobile: body.phoneNumber,
+			sender: "HairSaloon",
+			message: message
+		};
+
+		let options = {
+			method: "POST",
+			uri: "http://sendpk.com/api/sms.php?"+require('querystring').stringify(postData)
+		}
+
+		request.post(options, function(error, response, body){
+			console.log(JSON.stringify(error, null, '   '));
+			console.log(JSON.stringify(body, null, '   '));
+			
+			if (body.includes('OK')) {
+				//successfully sent
+				console.warn('body -> '+body);
+				res.status(200).send('sms sent');	
+			} else {
+				//error in sending message
+				console.error('error -> '+body);
+				res.status(400).send(body);
+			}
+		});
+
+	} else {
+		// no need to send message
+		res.status(200).send(body.message);
+	}
+});
+
+app.get('/totalOrders', function(req, res) {
+	Checkout.count({
+	}, function (err, count) {
+		res.json({count: count});
+	});
+});
+
+app.get('/getTotalOrdersForToday', function(req, res) {
+	var today = moment().startOf('day')
+	var tomorrow = moment(today).add(1, 'days')
+
+	Checkout.count({
+		createdAt: {
+			$gte: today.toDate(),
+			$lt: tomorrow.toDate()
+		}
+	}, function(err, count) {
+		res.json({count: count});
+	});
+});
+
+app.post('/getOrdersForDate', function(req, res) {
+
+	let date = req.body.orderDate;
+	console.log('date received is -> ' + date);
+	var today = moment(date).startOf('day')
+	var tomorrow = moment(today).add(1, 'days')
+
+	Checkout.find({
+		createdAt: {
+			$gte: today.toDate(),
+			$lt: tomorrow.toDate()
+		}
+	}, function(err, docs) {
+		res.json(docs);
 	});
 });
 

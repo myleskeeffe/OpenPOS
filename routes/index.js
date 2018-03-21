@@ -10,9 +10,31 @@ var router = express.Router();
 // get homepage
 router.get('/', ensureAuthenticated, function (req, res) {
 	res.render('index', {
-		username: req.user.username
+		username: req.user.username,
+		access: req.user.access || 'general'
 	});
 });
+
+// get orders
+router.get('/viewOrders', ensureAdmin, function (req, res) {
+	res.render('orders', {
+		username: req.user.username,
+		access: req.user.access || 'general'
+	});
+});
+
+function ensureAdmin(req, res, next) {
+	if (req.isAuthenticated()) {
+		if (req.user.access === 'admin')
+			return next();
+		else {
+			req.flash('error_msg', 'You have to be an admin to view this page');
+			res.redirect('/users/login');	
+		}
+	} else {
+		res.redirect('/users/login');
+	}
+}
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {

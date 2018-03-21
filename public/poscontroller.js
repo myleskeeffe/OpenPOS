@@ -3,7 +3,7 @@
 // Please see the file COPYING in the source
 // distribution of this software for license terms.
 
-var app = angular.module('OpenPOS', []);
+var app = angular.module('OpenPOS', ['ui.bootstrap']);
 
 // change Angular's {{foo}} -> {[{bar}]} to avoid clashing with Handlebars syntax
 app.config(function ($interpolateProvider) {
@@ -30,10 +30,21 @@ app.controller('PosController', function ($scope, $http) {
 			'category': 'Other'
 		}
     ]
+
 	$scope.selectedCategory = '';
 	$scope.order = [];
 	$scope.new = {};
 	$scope.totOrders = 0;
+
+	const setTotalOrders = function() {
+		$http.get('/getTotalOrdersForToday').success(function (response) {
+			$scope.totOrders = response.count;
+		}).error(function(err) {
+			console.error('error -> ' + err);
+		});
+	}
+
+	setTotalOrders();
 
 	$scope.addToOrder = function (item, qty) {
 		var flag = 0;
@@ -96,17 +107,35 @@ app.controller('PosController', function ($scope, $http) {
 
 		var date = dd + "/" + mm + "/" + yyyy
 
-		return date
+		return date;
 	};
 
 	$scope.checkout = function (index) {
-		alert($scope.getDate() + " - Order Number: " + ($scope.totOrders + 1) + "\n\nOrder amount: $" + $scope.getTotal().toFixed(2) + "\n\nPayment received. Thanks.");
-		$scope.order = [];
-		$scope.totOrders += 1;
+		let phoneNumber = $scope.checkout.phoneNumber;
+		let buyerName = $scope.checkout.buyername;
+		
+		let total = $scope.getTotal().toFixed(2);
+		let message = $scope.getDate() + " - Order Number: " + ($scope.totOrders + 1) + "\n\nOrder amount: " + total + " rps\n\nPayment received. Thanks.";
+		
+		$http.post('/checkoutOrder', {
+			"name": buyerName,
+			"phoneNumber": phoneNumber,
+			"servedBy": $scope.uname,
+			"message": message,
+			"order": $scope.order,
+			"total": total
+		}).success(function (response) {
+			alert(message);
+			$scope.order = [];
+			$scope.totOrders += 1;
+		}).error(function(error) {
+			alert(error);
+		});
 	};
 
 	var refresh = function () {
 		$http.get('/productlist').success(function (response) {
+			setTotalOrders();
 			$scope.productlist = response;
 			$scope.product = "";
 			//			console.log("RESPONSE: " + response);
@@ -184,7 +213,7 @@ function AppCtrl($scope, $http) {
 		var priceStr = $scope.product.price;
 		var priceRegex = /^((\d{0,3}(,\d{3})+)|\d+)(\.\d{2})?$/; // valid currency values only
 
-		if ($scope.uname !== ('Qasim9872')) {
+		if ($scope.accessLevel !== ('admin')) {
 			alert("You do not have access to make changes.");
 		}
 		else if (!nameStr) {
@@ -207,7 +236,7 @@ function AppCtrl($scope, $http) {
 	};
 
 	$scope.remove = function (id) {
-		if ($scope.uname === ('Qasim9872')) {
+		if ($scope.accessLevel !== ('admin')) {
 			alert("You do not have access to make changes.");
 		} else {
 			console.log(id);
@@ -231,4 +260,60 @@ function TimeCtrl($scope, $timeout) {
 
 	// start the timer
 	$timeout(tick, $scope.tickInterval);
+}
+
+function OrderViewCtrl($scope, $http, $timeout) {
+	$scope.orderDate = new Date();
+	$scope.ordersForSelectedDate = [];
+	$scope.totOrdersForDate = 0;
+	$scope.totSaleForDate = 0;
+	$scope.showDetailedOrder = false;
+		
+	$scope.dateOptions = {
+		'year-format': "'yy'",
+		'starting-day': 1
+ 	};
+
+	$scope.open = function() {
+    	$timeout(function() {
+     		$scope.opened = true;
+    	});
+  	};
+
+	var totalSale = function() {
+		let orders = $scope.ordersForSelectedDate;
+		if (orders.length > 0) {
+			$scope.totSaleForDate = 0;
+			orders.forEach(order => {
+				$scope.totSaleForDate += parseInt(order.total);
+			})
+		} else {
+			$scope.totSaleForDate = 0;
+		}
+	}
+
+	$scope.updateOrderView = function() {
+		if (typeof $scope.orderDate !== 'undefined') {
+			$scope.displayOrderDate = $scope.orderDate.toDateString();
+
+			$http.post('/getOrdersForDate', {orderDate: $scope.orderDate})
+			.success(function(response) {
+				console.log(response);
+				$scope.ordersForSelectedDate = response;
+				$scope.totOrdersForDate = $scope.ordersForSelectedDate.length;
+				totalSale();
+			}).error(function(err) {
+				console.log(JSON.stringify(err));
+			})
+		}
+	};
+
+	$scope.showDetail= function(order) {
+		console.log('this is getting called with -> ' + JSON.stringify(order));
+		$scope.viewSingleOrder = order;
+		$scope.showDetailedOrder = true;
+	};
+
+	$scope.updateOrderView();
+
 }

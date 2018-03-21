@@ -1,0 +1,84 @@
+<div class="container">
+	<div class="header clearfix">
+		<nav>
+			<center>
+				<div class="navbar-header" ng-controller="TimeCtrl">
+					<div class="navbar-brand">Welcome, {{username}}</div>
+					<div class="navbar-brand">[[clock | date:'medium']]</div>
+				</div>
+			</center>
+		</nav>
+	</div>
+</div>
+
+<div class="col-md-12" ng-if="showDetailedOrder">
+    
+</div>
+
+<div class="" ng-controller="OrderViewCtrl">
+    <div class="col-md-12" ng-if="showDetailedOrder">
+        <div class="panel panel-primary">
+            [[viewSingleOrder]]
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <table class="table" style="table-layout:fixed">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <center>
+                                    <div class="row">
+                                        <span class="panel-title">
+                                            <input style="color:black;" type="text" datepicker-popup="yyyy-mm-dd" ng-model="orderDate" is-open="opened" 
+                                            datepicker-options="dateOptions" ng-required="true" ng-change="updateOrderView()" placeholder="Choose Date"/>
+                                            <button class="btn btn-primary" ng-click="open()">+</button>
+                                        </span>
+                                    </div>
+                                </center>
+                            </td>
+                            <td><div class=""><span class="panel-title">Orders for [[displayOrderDate]]</span></div></td>
+                            <td><div class="text-right"><span>Total Orders: </span><span class="badge">[[totOrdersForDate]]</span></div></td>
+                            <td><div class="text-right"><span>Total Sale: </span><span class="badge">[[totSaleForDate]]</span></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="panel-body" style=" ">
+                    <div class="text-warning" ng-hide="ordersForSelectedDate.length" align="center">
+                            No orders for [[displayOrderDate]]!
+                    </div>
+                    <table class="table" style="table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center">Served by</th>
+                                <th style="text-align: center">Name</th>
+                                <th style="text-align: center">phone no</th>
+                                <th style="text-align: center">order</th>
+                                <th style="text-align: center">total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="text-align: center" ng-repeat="order in ordersForSelectedDate" ng-click="showDetail(order)">
+                                <td>[[order.servedBy]]</td>
+                                <td>[[order.name]]</td>
+                                <td>[[order.phoneNumber]]</td>
+                                <td>
+                                    <ul style="list-style:none;">
+                                        <li ng-repeat="item in order.order" style="text-align: center">
+                                            [[item.name]] x [[item.qty]]
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td>[[order.total]]</td>
+                                {{!--<td><button class="btn btn-danger" ng-click="remove(product._id)">Remove</button></td>--}}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>	
+    </div>
+</div>

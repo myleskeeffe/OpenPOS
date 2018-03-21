@@ -25,6 +25,11 @@
 	<!-- Bootstrap -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 
+	<!-- DatePicker -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-touch.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
+	<link  rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+
 	<!-- Local Stylesheet -->
 	<link rel="stylesheet" href="/css/pos.css" />
 	<link rel="stylesheet" href="/css/bootstrap.css" />
@@ -41,8 +46,13 @@
 			<nav>
 				<ul class="nav nav-pills">
 					<li role="presentation" text-align="left">
-						<a href="https://www.github.com/kimdj/OpenPOS" style="color:white; text-decoration:none">
-							OpenPOS
+						<a href="/" style="color:white; text-decoration:none">
+							Home
+						</a>
+					</li>
+					<li role="presentation" text-align="left">
+						<a href="/viewOrders" style="color:white; text-decoration:none">
+							Orders
 						</a>
 					</li>
 					{{#if user}}

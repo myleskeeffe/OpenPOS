@@ -21,33 +21,34 @@ router.get('/login', function (req, res) {
 });
 
 // register user
-router.post('/register', function (req, res) {
+router.post('/register', async (req, res) => {
 	var name = req.body.name;
 	var email = req.body.email;
 	var username = req.body.username;
 	var password = req.body.password;
 	var password2 = req.body.password2;
+	var access = req.body.accessLevel || 'general';
+	var adminPassword = req.body.adminPassword;
 
 	// validation
 	req.checkBody('name', 'Name is required').notEmpty();
+	req.checkBody('adminPassword', 'Admin Password is required').notEmpty();
 	req.checkBody('email', 'Email is required').notEmpty();
 	req.checkBody('email', 'Email is not valid').isEmail();
 	req.checkBody('username', 'Username is required').notEmpty();
+	req.check('username', 'This username is already taken').isUsernameAvailable(username);
 	req.checkBody('password', 'Password is required').notEmpty();
+
 	req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
+	req.checkBody('adminPassword', 'Admin password is invalid').equals("9872");
 
-	var errors = req.validationErrors();
-
-	if (errors) {
-		res.render('register', {
-			errors: errors
-		});
-	} else {
-		var newUser = new User({
+	req.asyncValidationErrors().then(function() {
+        var newUser = new User({
 			name: name,
 			email: email,
 			username: username,
-			password: password
+			password: password,
+			access: access
 		});
 
 		User.createUser(newUser, function (err, user) {
@@ -58,7 +59,14 @@ router.post('/register', function (req, res) {
 		req.flash('success_msg', 'You are registered and can now login');
 
 		res.redirect('/users/login');
-	}
+    }).catch(function(errors) {
+
+        if(errors) {
+            res.render('register', {
+				errors: errors
+			});
+        };
+    });
 });
 
 passport.use(new LocalStrategy(

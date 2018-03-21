@@ -13,7 +13,7 @@
 
 <!-- set the Angular variable, 'uname', to the username passed in from res.render -->
 <!-- $scope.uname is accessible within poscontroller.js -->
-<div style="display: none" ng-init="uname='{{username}}'"></div>
+<div style="display: none" ng-init="uname='{{username}}';accessLevel='{{access}}'"></div>
 
 <div class="col-md-12">
 	<div class="row">
@@ -94,11 +94,11 @@
 								<div class="col-md-4" id="item-name">
 									[[item.name]]
 								</div>
-								<div class="col-md-1" id="item-total-cost">
-									<div class="label label-success">[[item.price * item.qty | currency:"":0]]</div>
-								</div>
-								<div class="col-md-1 col-md-push-1" id="item-cost">
+								<div class="col-md-1" id="item-cost">
 									<div class="label label-warning">[[item.price | currency:"":0]]</div>
+								</div>
+								<div class="col-md-1 col-md-push-1" id="item-total-cost">
+									<div class="label label-success">[[item.price * item.qty | currency:"":0]]</div>
 								</div>
 								<div class="col-md-2 col-md-push-2" id="item-add-remove">
 									<button class="btn btn-success btn-xs" ng-click="addToOrder(item,1)">
@@ -118,7 +118,15 @@
 					</ul>
 				</div>
 				<div class="panel-footer" ng-show="order.length">
-					<span class="label label-primary" style="margin-top: 10px; margin-bottom: 10px;">Total rps: [[getTotal() | currency:"":0]]</span>
+					<table class="table" style="table-layout:fixed">
+						<tbody>
+							<tr>
+								<td><input style="margin-top: 15px;" class="form-control" ng-model="checkout.buyername" ng-keyup="$event.keyCode == 13 ? checkout() : null" placeholder="name"></td>
+								<td><input style="margin-top: 15px;" class="form-control" ng-model="checkout.phoneNumber" ng-keyup="$event.keyCode == 13 ? checkout() : null" placeholder="phone number"></td>
+								<td><span class="label label-primary" style="margin-top: 10px; float:right">Total rps: [[getTotal() | currency:"":0]]</span></td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 				<div class="panel-footer" ng-show="order.length">
 					<div>
@@ -130,3 +138,4 @@
 		</div>
 	</div>
 </div>
+
