@@ -10,7 +10,7 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>OpenPOS Demo</title>
+	<title>Shahzad's Hair Saloon</title>
 	<base href="/">
 
 	<!-- Bootstrap - Latest compiled and minified CSS -->
@@ -29,6 +29,16 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-touch.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
 	<link  rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+
+	<!-- Moment -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-moment/1.2.0/angular-moment.min.js"></script>
+
+	<!-- CSS -->
+	<link media="print" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/angular-print@0.3.8/angularPrint.css">
+	
+	<!-- JS -->
+	<script src="https://cdn.jsdelivr.net/npm/angular-print@0.3.8/angularPrint.min.js"></script>
 
 	<!-- Local Stylesheet -->
 	<link rel="stylesheet" href="/css/pos.css" />
@@ -50,9 +60,14 @@
 							Home
 						</a>
 					</li>
-					<li role="presentation" text-align="left">
+					<li role="presentation" text-align="left" ng-if="accessLevel==='admin'">
 						<a href="/viewOrders" style="color:white; text-decoration:none">
 							Orders
+						</a>
+					</li>
+					<li role="presentation" text-align="left" ng-if="accessLevel==='admin'">
+						<a href="/viewUsers" style="color:white; text-decoration:none">
+							Users
 						</a>
 					</li>
 					{{#if user}}

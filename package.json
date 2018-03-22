@@ -26,6 +26,8 @@
 		"gulp-rename": "^1.2.2",
 		"gulp-sass": "^3.1.0",
 		"gulp-uglify": "^3.0.0",
+		"handlebars-dateformat": "^1.1.1",
+		"jsonwebtoken": "^8.2.0",
 		"moment": "^2.21.0",
 		"mongodb": "^2.2.31",
 		"mongoose": "4.10.8",

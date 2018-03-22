@@ -1,0 +1,26 @@
+<div class="" ng-controller="UserViewCtrl">
+    <div id="detailedOrderDisplay" class="col-md-12">
+        <div class="panel panel-primary">
+            <table class="table" style="table-layout:fixed">
+                <thead>
+	    			<tr>
+						<th style="text-align: center">Name</th>
+						<th style="text-align: center">username</th>
+	    				<th style="text-align: center">Email</th>
+						<th style="text-align: center">Access</th>
+                        <th style="text-align: center">Remove</th>
+					</tr>
+				</thead>
+                <tbody>
+                    <tr ng-repeat="user in users">
+                        <td style="text-align: center">[[user.name]]</td>
+						<td style="text-align: center">[[user.username]]</td>
+	    				<td style="text-align: center">[[user.email]]</td>
+						<td style="text-align: center">[[user.access]]</td>
+                        <td style="text-align: center"><button class="btn btn-danger" ng-click="removeUser(user._id)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

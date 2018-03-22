@@ -24,6 +24,23 @@ var express = require('express'),
 	promise = require('promise'),
 	User = require('./models/user');;
 
+var hbs = exphbs.create({
+	// Specify helpers which are only registered on this instance. 
+	defaultLayout: 'layout',
+    helpers: {
+        dateFormat: function(datetime, format) {
+			if (moment) {
+				// can use other formats like 'lll' too
+				console.log('formatting date -> ' + datetime);
+				return moment(datetime).format(format);
+			}
+			else {
+				return datetime;
+			}
+		}
+    }
+});
+
 // sendPK config
 var config = require('./config.json');
 
@@ -34,7 +51,7 @@ var app = express();
 //mongoose.connect('mongodb://localhost/loginapp');
 
 // or, connect to MongoDB's Atlas (a cloud-hosted MongoDB service)
-var uri = "mongodb://localhost:27017/pos";
+var uri = process.env.mongourl || "mongodb://localhost:27017/pos";
 mongoose.connect(uri, {
 	useMongoClient: true
 });
@@ -56,9 +73,7 @@ var Products = mongoose.model('products', productSchema, 'products');
 
 // setup view engine
 app.set('views', path.join(__dirname, 'views'));
-app.engine('handlebars', exphbs({
-	defaultLayout: 'layout'
-}));
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 // setup bodyParser middleware
@@ -71,7 +86,7 @@ app.use(cookieParser());
 
 // setup an express session
 app.use(session({
-	secret: 'secret',
+	secret: process.env.secret || 'secret',
 	saveUninitialized: true,
 	resave: true
 }));
@@ -124,6 +139,29 @@ app.use(function (req, res, next) {
 	next();
 });
 
+//authentication
+var authentication = function (req, res, next) {
+	if (req.isAuthenticated()){
+		return next();
+	}
+	else {
+		res.redirect('/users/login');
+	}
+};
+
+var ensureAdmin = function (req, res, next) {
+	if (req.isAuthenticated()) {
+		if (req.user.access === 'admin')
+			return next();
+		else {
+			req.flash('error_msg', 'You have to be an admin to view this page');
+			res.redirect('/users/login');	
+		}
+	} else {
+		res.redirect('/users/login');
+	}
+}
+
 // -------------------- END - Express routing for product CRUD operations --------------------
 
 // username variable
@@ -134,7 +172,13 @@ function isEmpty(str) {
 }
 
 // find products from db
-app.get('/productlist', function (req, res) {
+app.get('/productlist', authentication, function (req, res) {
+
+	console.log('\n\n----------------------');
+	// console.log(JSON.stringify(req.user, null, '   '));
+	console.log(req.isAuthenticated());
+	console.log('\n\n----------------------');
+
 
 	// make sure uname is set to the login username
 	if (typeof req["user"].username === 'undefined') {
@@ -157,7 +201,7 @@ app.get('/productlist', function (req, res) {
 });
 
 // add product from db
-app.post('/productlist', function (req, res) {
+app.post('/productlist', ensureAdmin, function (req, res) {
 	console.log("Item requested to be added to the db: ", req.body);
 
 	// create a new product using the data sent from the client
@@ -175,7 +219,7 @@ app.post('/productlist', function (req, res) {
 });
 
 // delete product from db
-app.delete('/productlist/:id', function (req, res) {
+app.delete('/productlist/:id', ensureAdmin, function (req, res) {
 
 	// get the product id
 	var id = req.params.id;
@@ -220,31 +264,24 @@ const saveOrderToDB = async (data) => {
 			if (err) {
 				reject(err);
 			} else {
-				console.log("Saving c to db: ", doc);
 				resolve(doc);
 			}
 		});
 	});
 };
 
-app.post('/checkoutOrder', async(req, res) => {
+app.post('/checkoutOrder', authentication, async(req, res) => {
 	console.log('checking out order');
-
-	console.log(JSON.stringify(req.body, null, '   '));
 
 	let body = req.body;
 
-	//save here
-	let savedOrder = await saveOrderToDB(body);
-
-	let message = "Thank you for visiting Shahzad's Hair Saloon. \n\nOrder id: " + savedOrder._id + "\nAmount paid: " + body.total;
-
 	if (typeof body.phoneNumber !== 'undefined' && body.phoneNumber.trim() !== "") {
 		// has phone number in body, will try to send message
+		let message = "Thank you for visiting Shahzad's Hair Saloon. \n\nAmount paid: " + body.total;
 
 		postData = {
-			username: config.username,
-			password: config.password,
+			username: process.env.username || config.username,
+			password: process.env.password || config.password,
 			mobile: body.phoneNumber,
 			sender: "HairSaloon",
 			message: message
@@ -255,35 +292,39 @@ app.post('/checkoutOrder', async(req, res) => {
 			uri: "http://sendpk.com/api/sms.php?"+require('querystring').stringify(postData)
 		}
 
-		request.post(options, function(error, response, body){
-			console.log(JSON.stringify(error, null, '   '));
-			console.log(JSON.stringify(body, null, '   '));
+		request.post(options, async (error, response, body) => {
 			
 			if (body.includes('OK')) {
 				//successfully sent
 				console.warn('body -> '+body);
+
+				//save here
+				let savedOrder = await saveOrderToDB(body);
 				res.status(200).send('sms sent');	
 			} else {
 				//error in sending message
 				console.error('error -> '+body);
-				res.status(400).send(body);
+				let error = 'Please correct the error below, or remove the phone number for now\n'+body;
+				res.status(400).send(error);
 			}
 		});
 
 	} else {
 		// no need to send message
+		//save here
+		let savedOrder = await saveOrderToDB(body);
 		res.status(200).send(body.message);
 	}
 });
 
-app.get('/totalOrders', function(req, res) {
+app.get('/totalOrders', authentication, function(req, res) {
 	Checkout.count({
 	}, function (err, count) {
 		res.json({count: count});
 	});
 });
 
-app.get('/getTotalOrdersForToday', function(req, res) {
+app.get('/getTotalOrdersForToday', authentication, function(req, res) {
 	var today = moment().startOf('day')
 	var tomorrow = moment(today).add(1, 'days')
 
@@ -297,7 +338,7 @@ app.get('/getTotalOrdersForToday', function(req, res) {
 	});
 });
 
-app.post('/getOrdersForDate', function(req, res) {
+app.post('/getOrdersForDate', ensureAdmin, function(req, res) {
 
 	let date = req.body.orderDate;
 	console.log('date received is -> ' + date);
@@ -310,9 +351,46 @@ app.post('/getOrdersForDate', function(req, res) {
 			$lt: tomorrow.toDate()
 		}
 	}, function(err, docs) {
-		res.json(docs);
+		res.json(docs.reverse());
 	});
 });
+
+// -------------------- Users management
+
+app.get('/getListOfUsers', ensureAdmin, function(req, res) {
+	User.getAllUsers(function(err, docs) {
+		if (err) {
+			console.log('error in getting list of users');
+		} else {
+			res.json(docs);
+		}
+	});
+});
+
+// delete product from db
+app.delete('/user/:id', ensureAdmin, function (req, res) {
+
+	// get the product id
+	var id = req.params.id;
+	console.log("Removing user - id: " + id);
+
+	// remove the product from the db
+	User.remove({
+		_id: id
+	}, function (err, doc) {
+		res.json(doc);
+	});
+});
+
+// app.('/removeUser', function(req, res) {
+// 	User.getAllUsers(function(err, docs) {
+// 		if (err) {
+// 			console.log('error in getting list of users');
+// 		} else {
+// 			res.json(docs);
+// 		}
+// 	});
+// });
 
 // -------------------- START - Express routing for product CRUD operations --------------------
 

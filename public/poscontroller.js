@@ -3,7 +3,7 @@
 // Please see the file COPYING in the source
 // distribution of this software for license terms.
 
-var app = angular.module('OpenPOS', ['ui.bootstrap']);
+var app = angular.module('OpenPOS', ['ui.bootstrap', 'angularMoment', 'AngularPrint']);
 
 // change Angular's {{foo}} -> {[{bar}]} to avoid clashing with Handlebars syntax
 app.config(function ($interpolateProvider) {
@@ -113,6 +113,12 @@ app.controller('PosController', function ($scope, $http) {
 	$scope.checkout = function (index) {
 		let phoneNumber = $scope.checkout.phoneNumber;
 		let buyerName = $scope.checkout.buyername;
+
+		if (typeof phoneNumber === 'undefined' || phoneNumber === '' || typeof buyerName === 'undefined' || buyerName === '')
+		{
+			if (!confirm('Proceed without phone number or name?'))
+				return;
+		}
 		
 		let total = $scope.getTotal().toFixed(2);
 		let message = $scope.getDate() + " - Order Number: " + ($scope.totOrders + 1) + "\n\nOrder amount: " + total + " rps\n\nPayment received. Thanks.";
@@ -227,7 +233,7 @@ function AppCtrl($scope, $http) {
 			//			alert("Adding item: " + nameStr);
 			$scope.product.category = $scope.selectedCategory;
 			$scope.product.user = $scope.uname;
-			console.log($scope.product);
+			// console.log($scope.product);
 			$http.post('/productlist', $scope.product).success(function (response) {
 				//			console.log("addProduct: " + $scope.product);
 				refresh(); // refresh the Menu Panel
@@ -239,7 +245,7 @@ function AppCtrl($scope, $http) {
 		if ($scope.accessLevel !== ('admin')) {
 			alert("You do not have access to make changes.");
 		} else {
-			console.log(id);
+			// console.log(id);
 			$http.delete('/productlist/' + id).success(function (response) {
 				//			console.log("remove: " + response);
 				refresh(); // refresh the Menu Panel
@@ -262,7 +268,7 @@ function TimeCtrl($scope, $timeout) {
 	$timeout(tick, $scope.tickInterval);
 }
 
-function OrderViewCtrl($scope, $http, $timeout) {
+function OrderViewCtrl($scope, $http, $timeout, $window, moment) {
 	$scope.orderDate = new Date();
 	$scope.ordersForSelectedDate = [];
 	$scope.totOrdersForDate = 0;
@@ -298,7 +304,7 @@ function OrderViewCtrl($scope, $http, $timeout) {
 
 			$http.post('/getOrdersForDate', {orderDate: $scope.orderDate})
 			.success(function(response) {
-				console.log(response);
+				// console.log(response);
 				$scope.ordersForSelectedDate = response;
 				$scope.totOrdersForDate = $scope.ordersForSelectedDate.length;
 				totalSale();
@@ -308,12 +314,49 @@ function OrderViewCtrl($scope, $http, $timeout) {
 		}
 	};
 
-	$scope.showDetail= function(order) {
+	$scope.showDetail = function(order) {
 		console.log('this is getting called with -> ' + JSON.stringify(order));
+		// alert(JSON.stringify(order));
 		$scope.viewSingleOrder = order;
 		$scope.showDetailedOrder = true;
+		$window.scrollTo(0, angular.element(document.getElementById('detailedOrderDisplay')).offsetTop); 
 	};
+
+	$scope.parseDate = function() {
+		return moment($scope.viewSingleOrder.createdAt).format("h:mm a, ddd, Do MMMM  YYYY");
+	};
+
+	$scope.updateOrderInfo = function(order) {
+		console.log((order));
+	}
 
 	$scope.updateOrderView();
 
+}
+
+function UserViewCtrl($scope, $http) {
+	$scope.users = [];
+
+	var loadUsers = function() {
+		$http.get('/getListOfUsers').success(function (response) {
+			$scope.users = response;
+		}).error(function(err) {
+			console.error('error -> ' + err);
+		});
+	};
+
+	$scope.removeUser = function(id) {
+		let confirmation = confirm('Are you sure you want to remove the selected user');
+		if (confirmation) {
+			$http.delete('/user/'+ id).success(function (response) {
+				loadUsers();
+				alert('user has been deleted');
+			}).error(function(err) {
+				console.error('error -> ' + err);
+				alert('unable to delete user');
+			});
+		}
+	}
+
+	loadUsers();
 }

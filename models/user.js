@@ -20,6 +20,9 @@ var UserSchema = mongoose.Schema({
 	},
 	name: {
 		type: String
+	},
+	access: {
+		type: String
 	}
 });
 
@@ -40,6 +43,10 @@ module.exports.getUserByUsername = function (username, callback) {
 		username: username
 	};
 	User.findOne(query, callback);
+}
+
+module.exports.getAllUsers = function (callback) {
+	User.find({}, callback);
 }
 
 module.exports.getUserById = function (id, callback) {

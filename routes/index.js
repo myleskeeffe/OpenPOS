@@ -15,9 +15,17 @@ router.get('/', ensureAuthenticated, function (req, res) {
 	});
 });
 
-// get orders
+// view orders
 router.get('/viewOrders', ensureAdmin, function (req, res) {
 	res.render('orders', {
+		username: req.user.username,
+		access: req.user.access || 'general'
+	});
+});
+
+// view users
+router.get('/viewUsers', ensureAdmin, function (req, res) {
+	res.render('users', {
 		username: req.user.username,
 		access: req.user.access || 'general'
 	});

@@ -1,4 +1,4 @@
-<div class="container">
+<div print-remove class="container">
 	<div class="header clearfix">
 		<nav>
 			<center>
@@ -15,7 +15,7 @@
 <!-- $scope.uname is accessible within poscontroller.js -->
 <div style="display: none" ng-init="uname='{{username}}';accessLevel='{{access}}'"></div>
 
-<div class="col-md-12">
+<div print-section class="col-md-12">
 	<div class="row">
 		<div class="col-md-6">
 			<div class="panel panel-primary">
@@ -100,7 +100,7 @@
 								<div class="col-md-1 col-md-push-1" id="item-total-cost">
 									<div class="label label-success">[[item.price * item.qty | currency:"":0]]</div>
 								</div>
-								<div class="col-md-2 col-md-push-2" id="item-add-remove">
+								<div class="col-md-3 col-md-push-2" id="item-add-remove">
 									<button class="btn btn-success btn-xs" ng-click="addToOrder(item,1)">
                                             <span class="glyphicon glyphicon-plus"></span>
                                         </button>
@@ -108,7 +108,7 @@
                                             <span class="glyphicon glyphicon-minus"></span>
                                         </button>
 								</div>
-								<div class="col-md-1 col-md-push-2" id="item-delete">
+								<div class="col-md-1 col-md-push-1" id="item-delete">
 									<button class="btn btn-danger btn-xs" ng-click="removeItem(item)">
                                             <span class="glyphicon glyphicon-trash"></span>
                                         </button>

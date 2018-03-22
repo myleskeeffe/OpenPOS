@@ -1,4 +1,4 @@
-<div class="container">
+<div print-remove class="container">
 	<div class="header clearfix">
 		<nav>
 			<center>
@@ -11,16 +11,63 @@
 	</div>
 </div>
 
-<div class="col-md-12" ng-if="showDetailedOrder">
-    
-</div>
-
-<div class="" ng-controller="OrderViewCtrl">
-    <div class="col-md-12" ng-if="showDetailedOrder">
+<div print-section class="" ng-controller="OrderViewCtrl">
+    <div print-remove id="detailedOrderDisplay" class="col-md-12" ng-if="showDetailedOrder" ng-show="showDetailedOrder">
         <div class="panel panel-primary">
-            [[viewSingleOrder]]
+            <table class="table" style="table-layout:fixed">
+                <thead>
+                    <tr>
+                        <div style="text-align: center" class="panel-heading"><span class="panel-title">Order with id: [[viewSingleOrder._id]]</span></div>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span>Served at: </span></td>
+                        <td><span>[[parseDate()]]</span></td>
+                    </tr>
+                    <tr>
+                        <td><span>Served by: </span></td>
+                        <td><span>[[viewSingleOrder.servedBy]]</span></td>
+                    </tr>
+                    <tr>
+                        <td><span>Name: </span></td>
+                        <td><span>[[viewSingleOrder.name]]</span></td>
+                        {{!--<td>
+                            <input class="form-control" style="color:black;" type="text" ng-model="viewSingleOrder.name"/>
+                        </td>--}}
+                    </tr>
+                    <tr>
+                        <td><span>Phone number: </span></td>
+                        <td><span>[[viewSingleOrder.phoneNumber]]</span></td>
+                        {{!--<td>
+                            <input class="form-control" style="color:black;" type="text" ng-model="viewSingleOrder.phoneNumber"/>
+                        </td>--}}
+                    </tr>
+                    <tr>
+                          
+                    </tr>
+                    <tr ng-repeat="item in viewSingleOrder.order">
+                        <td>
+                            [[item.name]] 
+                        </td>
+                        <td>
+                            [[item.qty]] x [[item.price]]
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Total amount paid:
+                        </td>
+                        <td>
+                            [[viewSingleOrder.total]]
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
         </div>
     </div>
+
     <div class="col-md-12">
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -55,24 +102,24 @@
                             <tr>
                                 <th style="text-align: center">Served by</th>
                                 <th style="text-align: center">Name</th>
-                                <th style="text-align: center">phone no</th>
+                                <th style="text-align: center">phone</th>
                                 <th style="text-align: center">order</th>
-                                <th style="text-align: center">total</th>
+                                <th style="text-align: center">total(rps)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr style="text-align: center" ng-repeat="order in ordersForSelectedDate" ng-click="showDetail(order)">
-                                <td>[[order.servedBy]]</td>
-                                <td>[[order.name]]</td>
-                                <td>[[order.phoneNumber]]</td>
-                                <td>
+                                <td class="" style="text-align: center">[[order.servedBy]]</td>
+                                <td style="text-align: center">[[order.name]]</td>
+                                <td style="text-align: center">[[order.phoneNumber]]</td>
+                                <td style="text-align: center">
                                     <ul style="list-style:none;">
                                         <li ng-repeat="item in order.order" style="text-align: center">
                                             [[item.name]] x [[item.qty]]
                                         </li>
                                     </ul>
                                 </td>
-                                <td>[[order.total]]</td>
+                                <td style="text-align: center">[[order.total]]</td>
                                 {{!--<td><button class="btn btn-danger" ng-click="remove(product._id)">Remove</button></td>--}}
                             </tr>
                         </tbody>
