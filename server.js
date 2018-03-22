@@ -292,19 +292,20 @@ app.post('/checkoutOrder', authentication, async(req, res) => {
 			uri: "http://sendpk.com/api/sms.php?"+require('querystring').stringify(postData)
 		}
 
-		request.post(options, async (error, response, body) => {
-			
-			if (body.includes('OK')) {
+		request.post(options, async (error, response, resBody) => {
+			console.log('error is -> ' + JSON.stringify(error));
+			console.log('body is -> ' + JSON.stringify(body));
+			if (resBody.includes('OK')) {
 				//successfully sent
-				console.warn('body -> '+body);
+				console.warn('body -> '+resBody);
 
 				//save here
 				let savedOrder = await saveOrderToDB(body);
 				res.status(200).send('sms sent');	
 			} else {
 				//error in sending message
-				console.error('error -> '+body);
-				let error = 'Please correct the error below, or remove the phone number for now\n'+body;
+				console.error('error -> '+resBody);
+				let error = 'Please correct the error below, or remove the phone number for now\n'+resBody;
 				res.status(400).send(error);
 			}
 		});
